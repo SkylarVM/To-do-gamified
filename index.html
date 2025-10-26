@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gamified To-Do & Rewards</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gamified To-Do</title>
 <style>
 body {
   font-family: 'Poppins', sans-serif;
@@ -16,9 +16,7 @@ body {
   margin: 0;
   padding: 20px;
 }
-h1 {
-  color: #60a5fa;
-}
+h1 { color: #60a5fa; }
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -46,13 +44,8 @@ button {
   color: white;
   cursor: pointer;
 }
-button:hover {
-  background: #3b82f6;
-}
-ul {
-  list-style: none;
-  padding: 0;
-}
+button:hover { background: #3b82f6; }
+ul { list-style: none; padding: 0; }
 li {
   background: #1e293b;
   margin: 5px 0;
@@ -69,38 +62,34 @@ li {
   border-radius: 12px;
   margin-bottom: 20px;
 }
-input[type="number"] {
-  width: 80px;
-}
+input[type="number"] { width: 90px; }
 </style>
 </head>
 <body>
 
 <h1>🎯 XP To-Do + Reward Store</h1>
-<div id="expDisplay">EXP: <span id="expPoints">0</span></div>
+<div id="expDisplay">EXP: <span id="expPoints">0.00</span></div>
 
 <div class="container">
-
   <div class="card">
     <h2>✅ To-Do List</h2>
-    <input id="taskName" type="text" placeholder="New task...">
-    <input id="taskXP" type="number" placeholder="XP" min="1">
+    <input id="taskName" type="text" placeholder="New task..." />
+    <input id="taskXP" type="number" placeholder="XP" min="0.01" step="0.01" />
     <button onclick="addTask()">Add Task</button>
     <ul id="taskList"></ul>
   </div>
 
   <div class="card">
     <h2>🎁 Reward Store</h2>
-    <input id="rewardName" type="text" placeholder="New reward...">
-    <input id="rewardCost" type="number" placeholder="Cost XP" min="1">
+    <input id="rewardName" type="text" placeholder="New reward..." />
+    <input id="rewardCost" type="number" placeholder="Cost XP" min="0.01" step="0.01" />
     <button onclick="addReward()">Add Reward</button>
     <ul id="rewardList"></ul>
   </div>
-
 </div>
 
 <script>
-let exp = parseInt(localStorage.getItem("exp")) || 0;
+let exp = parseFloat(localStorage.getItem("exp")) || 0;
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let rewards = JSON.parse(localStorage.getItem("rewards")) || [];
 
@@ -109,10 +98,10 @@ const taskList = document.getElementById("taskList");
 const rewardList = document.getElementById("rewardList");
 
 function saveData() {
-  localStorage.setItem("exp", exp);
+  localStorage.setItem("exp", exp.toFixed(2));
   localStorage.setItem("tasks", JSON.stringify(tasks));
   localStorage.setItem("rewards", JSON.stringify(rewards));
-  expDisplay.textContent = exp;
+  expDisplay.textContent = exp.toFixed(2);
 }
 
 function renderTasks() {
@@ -143,8 +132,8 @@ function renderRewards() {
 
 function addTask() {
   const name = document.getElementById("taskName").value.trim();
-  const xp = parseInt(document.getElementById("taskXP").value);
-  if (!name || !xp) return alert("Please enter task name and XP.");
+  const xp = parseFloat(document.getElementById("taskXP").value);
+  if (!name || isNaN(xp)) return alert("Please enter task name and XP.");
   tasks.push({ name, xp });
   document.getElementById("taskName").value = "";
   document.getElementById("taskXP").value = "";
@@ -154,8 +143,8 @@ function addTask() {
 
 function addReward() {
   const name = document.getElementById("rewardName").value.trim();
-  const cost = parseInt(document.getElementById("rewardCost").value);
-  if (!name || !cost) return alert("Please enter reward name and cost.");
+  const cost = parseFloat(document.getElementById("rewardCost").value);
+  if (!name || isNaN(cost)) return alert("Please enter reward name and cost.");
   rewards.push({ name, cost });
   document.getElementById("rewardName").value = "";
   document.getElementById("rewardCost").value = "";
@@ -164,7 +153,7 @@ function addReward() {
 }
 
 function completeTask(index) {
-  exp += tasks[index].xp;
+  exp += parseFloat(tasks[index].xp);
   tasks.splice(index, 1);
   saveData();
   renderTasks();
@@ -172,8 +161,9 @@ function completeTask(index) {
 }
 
 function redeemReward(index) {
-  if (exp < rewards[index].cost) return alert("Not enough XP!");
-  exp -= rewards[index].cost;
+  const cost = parseFloat(rewards[index].cost);
+  if (exp < cost) return alert("Not enough XP!");
+  exp -= cost;
   saveData();
   renderRewards();
   checkMilestones();
@@ -182,14 +172,14 @@ function redeemReward(index) {
 function checkMilestones() {
   const milestones = [100, 500, 1000, 2000];
   for (const m of milestones) {
-    if (exp === m) {
+    if (Math.abs(exp - m) < 0.01) {
       alert(`🎉 Congratulations! You reached ${m} XP!`);
     }
   }
 }
 
 window.onload = () => {
-  expDisplay.textContent = exp;
+  expDisplay.textContent = exp.toFixed(2);
   renderTasks();
   renderRewards();
 };
